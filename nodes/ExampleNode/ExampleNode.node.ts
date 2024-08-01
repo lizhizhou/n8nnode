@@ -6,6 +6,7 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
+
 export class ExampleNode implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Example Node',
@@ -40,17 +41,23 @@ export class ExampleNode implements INodeType {
 		const items = this.getInputData();
 
 		let item: INodeExecutionData;
-		let myString: string;
+		//let myString: string;
 
 		// Iterates over all input items and add the key "myString" with the
 		// value the parameter "myString" resolves to.
 		// (This could be a different value for each item in case it contains an expression)
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
-				myString = this.getNodeParameter('myString', itemIndex, '') as string;
+				let wasm_base64 = "AGFzbQEAAAABBwFgAnx8AXwDAgEABwoBBm15X2FkZAAACgkBBwAgACABoAs=";
+				let wasm_buffer = Uint8Array.from(atob(wasm_base64), c => c.charCodeAt(0)).buffer;
+				let wasm  = (global as any).WebAssembly
+				let wa = await wasm.compile(wasm_buffer);
+				let wasm_instance = new wasm.Instance(wa);
+				let x = wasm_instance.exports.my_add(2,3);
+				console.log("2+2 = ",x);
+				//myString = this.getNodeParameter('myString', itemIndex, '') as string;
 				item = items[itemIndex];
-
-				item.json['myString'] = myString;
+				item.json['lizhizhou'] = x;
 			} catch (error) {
 				// This node should never fail but we want to showcase how
 				// to handle errors.
